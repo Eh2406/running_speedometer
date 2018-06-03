@@ -47,7 +47,7 @@ $(function () {
             let time_ms = position.timestamp - old.timestamp;
             let time_h = time_ms * 2.77778e-7;
             let mph = dist / time_h;
-            $("#speed").text(mph.toFixed(2) + " mph");
+            $("#speed").text(mph.toFixed(2) + " mph. With " + locations.length + " test points");
 
         }
     });
