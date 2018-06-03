@@ -63,7 +63,7 @@ $(function () {
         }
         locations.push(position);
         if (locations.length >= 2) {
-            $("#speed").text(speed(locations[0], position).toFixed(1) + " mph. With " + locations.length + " test points. Last updated " + position.timestamp - start_time);
+            $("#speed").text(speed(locations[0], position).toFixed(1) + " mph. With " + locations.length + " test points. Last updated " + (position.timestamp - start_time));
         }
     });
 
