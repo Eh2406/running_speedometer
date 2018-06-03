@@ -1,10 +1,5 @@
 function geoOnError(error) {
-    $("#error").text('Error occurred. Error code: ' + error.code);
-    // error.code can be:
-    //   0: unknown error
-    //   1: permission denied
-    //   2: position unavailable (error response from locaton provider)
-    //   3: timed out
+    $("#error").text('Error occurred. Error message: ' + error.message);
 }
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -25,8 +20,8 @@ Number.prototype.toRad = function () {
 
 function speed(old_pos, new_pos) {
     let dist = calculateDistance(
-        old_pos.coords.latitude, old_pos.coords.longitude,
-        new_pos.coords.latitude, new_pos.coords.longitude);
+        old_pos.latitude, old_pos.longitude,
+        new_pos.latitude, new_pos.longitude);
     let time_ms = new_pos.timestamp - old_pos.timestamp;
     let time_h = time_ms * 2.77778e-7;
     let mph = dist / time_h;
@@ -42,20 +37,31 @@ $(function () {
         return;
     }
 
-    navigator.geolocation.watchPosition(
-        function (position) {
-            if (position.coords.accuracy > 100) { return; }
-            if (Math.abs(position.coords.latitude) < 10) { return; }
-            if (Math.abs(position.coords.longitude) < 10) { return; }
-            while (locations[1] && locations[1].timestamp < (position.timestamp - 30 * 1000)) {
-                locations.shift();
-            }
-            locations.push(position)
-            if (locations.length >= 2) {
-                $("#speed").text(speed(locations[0], position).toFixed(1) + " mph. With " + locations.length + " test points. Last updated " + position.timestamp);
-            }
-        },
-        geoOnError,
-        { watchPosenableHighAccuracy: true });
+    var map = L.map('map');
 
+    L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+        maxZoom: 18,
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+            '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+            'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+        id: 'mapbox.streets'
+    }).addTo(map);
+
+    map.locate({ watch: true, setView: true, maxZoom: 16, enableHighAccuracy: true });
+
+    map.on('locationfound', function (position) {
+        if (position.accuracy > 100) { return; }
+        var radius = position.accuracy / 2;
+        L.circle(position.latlng, radius).addTo(map);
+        console.log(position)
+        while (locations[1] && locations[1].timestamp < (position.timestamp - 30 * 1000)) {
+            locations.shift();
+        }
+        locations.push(position);
+        if (locations.length >= 2) {
+            $("#speed").text(speed(locations[0], position).toFixed(1) + " mph. With " + locations.length + " test points. Last updated " + position.timestamp);
+        }
+    });
+
+    map.on('locationerror', geoOnError);
 })
