@@ -29,6 +29,7 @@ function speed(old_pos, new_pos) {
 }
 
 var locations = [];
+var start_time;
 
 $(function () {
     // check for Geolocation support
@@ -52,14 +53,17 @@ $(function () {
     map.on('locationfound', function (position) {
         if (position.accuracy > 100) { return; }
         var radius = position.accuracy / 2;
-        L.circle(position.latlng, radius).addTo(map);
-        console.log(position)
+        position.circle = L.circle(position.latlng, radius).addTo(map);
+        if (!start_time) {
+            start_time = position.timestamp;
+        }
         while (locations[1] && locations[1].timestamp < (position.timestamp - 30 * 1000)) {
+            map.removeLayer(locations[0].circle)
             locations.shift();
         }
         locations.push(position);
         if (locations.length >= 2) {
-            $("#speed").text(speed(locations[0], position).toFixed(1) + " mph. With " + locations.length + " test points. Last updated " + position.timestamp);
+            $("#speed").text(speed(locations[0], position).toFixed(1) + " mph. With " + locations.length + " test points. Last updated " + position.timestamp - start_time);
         }
     });
 
