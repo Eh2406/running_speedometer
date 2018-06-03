@@ -23,6 +23,16 @@ Number.prototype.toRad = function () {
     return this * Math.PI / 180;
 }
 
+function speed(old_pos, new_pos) {
+    let dist = calculateDistance(
+        old_pos.coords.latitude, old_pos.coords.longitude,
+        new_pos.coords.latitude, new_pos.coords.longitude);
+    let time_ms = new_pos.timestamp - old_pos.timestamp;
+    let time_h = time_ms * 2.77778e-7;
+    let mph = dist / time_h;
+    return mph
+}
+
 var locations = [];
 
 $(function () {
@@ -41,15 +51,8 @@ $(function () {
         }
         locations.push(position)
         if (locations.length >= 2) {
-            let old = locations[0];
-            let dist = calculateDistance(old.coords.latitude, old.coords.longitude,
-                position.coords.latitude, position.coords.longitude);
-            let time_ms = position.timestamp - old.timestamp;
-            let time_h = time_ms * 2.77778e-7;
-            let mph = dist / time_h;
-            $("#speed").text(mph.toFixed(2) + " mph. With " + locations.length + " test points");
-
+            $("#speed").text(speed(locations[0], position).toFixed(1) + " mph. With " + locations.length + " test points. Last updated " + position.timestamp);
         }
-    });
+    }, geoOnError);
 
 })
