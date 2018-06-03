@@ -42,17 +42,20 @@ $(function () {
         return;
     }
 
-    navigator.geolocation.watchPosition(function (position) {
-        if (position.coords.accuracy > 100) { return; }
-        if (Math.abs(position.coords.latitude) < 10) { return; }
-        if (Math.abs(position.coords.longitude) < 10) { return; }
-        while (locations[1] && locations[1].timestamp < (position.timestamp - 30 * 1000)) {
-            locations.shift();
-        }
-        locations.push(position)
-        if (locations.length >= 2) {
-            $("#speed").text(speed(locations[0], position).toFixed(1) + " mph. With " + locations.length + " test points. Last updated " + position.timestamp);
-        }
-    }, geoOnError);
+    navigator.geolocation.watchPosition(
+        function (position) {
+            if (position.coords.accuracy > 100) { return; }
+            if (Math.abs(position.coords.latitude) < 10) { return; }
+            if (Math.abs(position.coords.longitude) < 10) { return; }
+            while (locations[1] && locations[1].timestamp < (position.timestamp - 30 * 1000)) {
+                locations.shift();
+            }
+            locations.push(position)
+            if (locations.length >= 2) {
+                $("#speed").text(speed(locations[0], position).toFixed(1) + " mph. With " + locations.length + " test points. Last updated " + position.timestamp);
+            }
+        },
+        geoOnError,
+        { watchPosenableHighAccuracy: true });
 
 })
