@@ -30,6 +30,7 @@ function speed(old_pos, new_pos) {
 
 var locations = [];
 var start_time;
+var old_index = 0;
 
 $(function () {
     // check for Geolocation support
@@ -73,13 +74,12 @@ $(function () {
         if (!start_time) {
             start_time = position.timestamp;
         }
-        while (locations[1] && locations[1].timestamp < (position.timestamp - 30 * 1000)) {
-            map.removeLayer(locations[0].circle)
-            locations.shift();
+        while (locations[old_index + 1] && locations[old_index + 1].timestamp < (position.timestamp - 15 * 1000)) {
+            old_index += 1;
         }
         locations.push(position);
         if (locations.length >= 2) {
-            $("#speed").text(speed(locations[0], position).toFixed(1) + " mph. With " + locations.length + " test points. Last updated " + (position.timestamp - start_time) + ". Raw speed report " + (position.speed * 2.23694));
+            $("#speed").text(speed(locations[0], position).toFixed(1) + " mph. With " + (locations.length - old_index) + "/" + locations.length + " test points. Last updated " + (position.timestamp - start_time) + ". Raw speed report " + (position.speed * 2.23694).toFixed(1));
         }
     });
 
