@@ -56,18 +56,34 @@ textarea {
    Author's custom styles
    ========================================================================== */
 
+#map {
+    height: 50vh;
+}
 
 
-#map { height: 50vh; }
+#error {
+    background-color: red;
+    text-align: center;
+    font-weight: bold;
+    font-size: larger;
+}
 
 
+#speed {
+    text-align: center;
+    font-weight: bold;
+    font-size: xx-large;
+}
 
 
+#speed.too-slow {
+    background-color: rgba(10, 255, 10, 0.5);
+}
 
 
-
-
-
+#speed.too-fast {
+    background-color: rgba(255, 10, 10, 0.5);
+}
 
 
 /* ==========================================================================

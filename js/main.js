@@ -79,7 +79,9 @@ $(function () {
         }
         locations.push(position);
         if (locations.length >= 2) {
-            $("#speed").text(speed(locations[0], position).toFixed(1) + " mph. With " + (locations.length - old_index) + "/" + locations.length + " test points. Last updated " + (position.timestamp - start_time) + ". Raw speed report " + (position.speed * 2.23694).toFixed(1));
+            let mph = speed(locations[0], position);
+            $("#speed").text(mph.toFixed(1) + " mph.");
+            $("#info").text("With " + (locations.length - old_index) + "/" + locations.length + " test points. Last updated " + (position.timestamp - start_time) + ". Raw speed report " + (position.speed * 2.23694).toFixed(1));
         }
     });
 
