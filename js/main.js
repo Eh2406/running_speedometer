@@ -52,8 +52,7 @@ $(function () {
 
     map.on('locationfound', function (position) {
         if (position.accuracy > 100) { return; }
-        var radius = position.accuracy / 2;
-        position.circle = L.circle(position.latlng, radius).addTo(map);
+        position.circle = L.circle(position.latlng, position.accuracy).addTo(map);
         if (!start_time) {
             start_time = position.timestamp;
         }
@@ -63,7 +62,7 @@ $(function () {
         }
         locations.push(position);
         if (locations.length >= 2) {
-            $("#speed").text(speed(locations[0], position).toFixed(1) + " mph. With " + locations.length + " test points. Last updated " + (position.timestamp - start_time));
+            $("#speed").text(speed(locations[0], position).toFixed(1) + " mph. With " + locations.length + " test points. Last updated " + (position.timestamp - start_time) + ". Raw speed report " + (position.speed * 2.23694));
         }
     });
 
