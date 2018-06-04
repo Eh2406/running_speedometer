@@ -79,10 +79,10 @@ $(function () {
         }
         locations.push(position);
         if (locations.length >= 2) {
-            let mph = speed(locations[0], position);
+            let mph = speed(locations[old_index], position);
             let target_mph = +$(target_speed).val();
-            $("#speed").text(mph.toFixed(1) + " mph.").toggleClass('.too-slow', mph - target_mph < -0.15).toggleClass('.too-fast', mph - target_mph > 0.15);
-            $("#info").text("With " + (locations.length - old_index) + "/" + locations.length + " test points. Last updated " + (position.timestamp - start_time) + ". Raw speed report " + (position.speed * 2.23694).toFixed(1));
+            $("#speed").text(mph.toFixed(1) + " mph.").toggleClass('.too-slow', mph < target_mph - 0.15).toggleClass('.too-fast', mph > target_mph + 0.15);
+            $("#info").text("With " + (locations.length - old_index) + "/" + locations.length + " test points. Raw speed report " + (position.speed * 2.23694).toFixed(1));
         }
     });
 
