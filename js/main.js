@@ -37,6 +37,23 @@ $(function () {
         $("#error").text('Geolocation is not supported for this Browser/OS version yet.');
         return;
     }
+    if (!navigator.clipboard) {
+        $("#clipboard").attr("disabled", "disabled");
+    } else {
+        $("#clipboard").click(() => {
+            navigator.clipboard.writeText(
+                JSON.stringify(
+                    {
+                        latitude: locations.map((i) => i.latitude),
+                        longitude: locations.map((i) => i.longitude),
+                        timestamp: locations.map((i) => i.timestamp),
+                        accuracy: locations.map((i) => i.accuracy),
+                        speed: locations.map((i) => i.speed),
+                    }
+                )
+            )
+        })
+    }
 
     var map = L.map('map');
 
