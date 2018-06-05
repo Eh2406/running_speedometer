@@ -11,7 +11,10 @@ function speed(old_pos, new_pos) {
 
 var locations = [];
 var old_index = 0;
+
+const smoothing_overcount = 10;
 var total_distance_m = 0;
+var total_time_s = 0;
 
 $(function () {
     // check for Geolocation support
@@ -63,11 +66,13 @@ $(function () {
         }
         locations.push(position);
         if (locations.length >= 2) {
-            total_distance_m += locations[locations.length - 2].latlng.distanceTo(position.latlng)
-            let time_s = (position.timestamp - locations[0].timestamp) * 0.001;
-            let total_speed = (total_distance_m / time_s) * 2.23694;
+            if (locations.length >= smoothing_overcount) {
+                total_distance_m += locations[locations.length - smoothing_overcount].latlng.distanceTo(position.latlng);
+                total_time_s += (position.timestamp - locations[locations.length - smoothing_overcount].timestamp) * 0.001;
+            }
+            let total_speed = (total_distance_m / total_time_s) * 2.23694;
 
-            let a_5k_time = 5000 * (time_s / total_distance_m) / 60;
+            let a_5k_time = 5000 * (total_time_s / total_distance_m) / 60;
 
             let mph = speed(locations[old_index], position) * 2.23694;
             let target_mph = +$("#target_speed").val();
