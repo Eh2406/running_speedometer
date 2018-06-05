@@ -1,3 +1,4 @@
+/*global L */
 function geoOnError(error) {
     $("#error").text(`Error occurred. Error message: ${error.message}`);
 }
@@ -8,6 +9,36 @@ function speed(old_pos, new_pos) {
     let time_s = time_ms * 0.001;
     return dist / time_s
 }
+
+function geoOnFound(position) {
+        $("#error").text('');
+        position.circle = L.circle(position.latlng, position.accuracy).addTo(map);
+        polyline.addLatLng(position.latlng);
+        map.fitBounds(polyline.getBounds());
+        while (locations[old_index + 1] && locations[old_index + 1].timestamp < (position.timestamp - 15 * 1000)) {
+            map.removeLayer(locations[old_index].circle);
+            old_index += 1;
+        }
+        locations.push(position);
+        if (locations.length >= 2) {
+            if (locations.length >= smoothing_overcount) {
+                total_distance_m += locations[locations.length - smoothing_overcount].latlng.distanceTo(position.latlng);
+                total_time_s += (position.timestamp - locations[locations.length - smoothing_overcount].timestamp) * 0.001;
+            }
+            let total_speed = (total_distance_m / total_time_s) * 2.23694;
+
+            let a_5k_time = 5000 * (total_time_s / total_distance_m) / 60;
+
+            let mph = speed(locations[old_index], position) * 2.23694;
+            let target_mph = +$("#target_speed").val();
+            $("#speed").text(`${mph.toFixed(1)} mph.`).toggleClass('too-slow', mph < target_mph - 0.15).toggleClass('too-fast', mph > target_mph + 0.15);
+            $("#total").text(`${(total_distance_m * 0.000621371).toFixed(2)} miles @ ${total_speed.toFixed(1)} mph. 5k in ${a_5k_time.toFixed(1)} min`);
+            $("#info").text(`With ${locations.length - old_index}/${locations.length} test points. Raw speed report ${(position.speed * 2.23694).toFixed(1)}`);
+        }
+    }
+
+ var map;
+ var polyline;
 
 var locations = [];
 var old_index = 0;
@@ -40,7 +71,7 @@ $(function () {
         })
     }
 
-    var map = L.map('map');
+    map = L.map('map');
 
     L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
         maxZoom: 18,
@@ -50,37 +81,10 @@ $(function () {
         id: 'mapbox.streets'
     }).addTo(map);
 
-    var polyline = new L.Polyline([]);
+    polyline = new L.Polyline([]);
     polyline.addTo(map);
 
     map.locate({ watch: true, setView: false, enableHighAccuracy: true });
-
-    map.on('locationfound', function (position) {
-        $("#error").text('');
-        position.circle = L.circle(position.latlng, position.accuracy).addTo(map);
-        polyline.addLatLng(position.latlng);
-        map.fitBounds(polyline.getBounds());
-        while (locations[old_index + 1] && locations[old_index + 1].timestamp < (position.timestamp - 15 * 1000)) {
-            map.removeLayer(locations[old_index].circle);
-            old_index += 1;
-        }
-        locations.push(position);
-        if (locations.length >= 2) {
-            if (locations.length >= smoothing_overcount) {
-                total_distance_m += locations[locations.length - smoothing_overcount].latlng.distanceTo(position.latlng);
-                total_time_s += (position.timestamp - locations[locations.length - smoothing_overcount].timestamp) * 0.001;
-            }
-            let total_speed = (total_distance_m / total_time_s) * 2.23694;
-
-            let a_5k_time = 5000 * (total_time_s / total_distance_m) / 60;
-
-            let mph = speed(locations[old_index], position) * 2.23694;
-            let target_mph = +$("#target_speed").val();
-            $("#speed").text(`${mph.toFixed(1)} mph.`).toggleClass('too-slow', mph < target_mph - 0.15).toggleClass('too-fast', mph > target_mph + 0.15);
-            $("#total").text(`${(total_distance_m * 0.000621371).toFixed(2)} miles @ ${total_speed.toFixed(1)} mph. 5k in ${a_5k_time.toFixed(1)} min`);
-            $("#info").text(`With ${locations.length - old_index}/${locations.length} test points. Raw speed report ${(position.speed * 2.23694).toFixed(1)}`);
-        }
-    });
-
+    map.on('locationfound', geoOnFound);
     map.on('locationerror', geoOnError);
 })
