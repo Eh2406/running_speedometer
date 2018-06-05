@@ -50,12 +50,13 @@ $(function () {
     var polyline = new L.Polyline([]);
     polyline.addTo(map);
 
-    map.locate({ watch: true, setView: true, maxZoom: 16, enableHighAccuracy: true });
+    map.locate({ watch: true, setView: false, enableHighAccuracy: true });
 
     map.on('locationfound', function (position) {
         $("#error").text('');
         position.circle = L.circle(position.latlng, position.accuracy).addTo(map);
         polyline.addLatLng(position.latlng);
+        map.fitBounds(polyline.getBounds());
         while (locations[old_index + 1] && locations[old_index + 1].timestamp < (position.timestamp - 15 * 1000)) {
             map.removeLayer(locations[old_index].circle);
             old_index += 1;
