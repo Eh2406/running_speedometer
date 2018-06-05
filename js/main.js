@@ -65,13 +65,18 @@ $(function () {
         id: 'mapbox.streets'
     }).addTo(map);
 
+    var polyline = new L.Polyline([]);
+    polyline.addTo(map);
+
     map.locate({ watch: true, setView: true, maxZoom: 16, enableHighAccuracy: true });
 
     map.on('locationfound', function (position) {
         $("#error").text('');
         if (position.accuracy > 100) { return; }
         position.circle = L.circle(position.latlng, position.accuracy).addTo(map);
+        polyline.addLatLng(position.latlng);
         while (locations[old_index + 1] && locations[old_index + 1].timestamp < (position.timestamp - 15 * 1000)) {
+            map.removeLayer(locations[old_index].circle);
             old_index += 1;
         }
         locations.push(position);
