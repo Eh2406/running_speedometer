@@ -21,17 +21,17 @@ function geoOnFound(position) {
     }
     locations.push(position);
     if (locations.length >= 2) {
-        if (locations.length > smoothing_overcount) {
-            total_distance_m += locations[locations.length - smoothing_overcount - 1].latlng.distanceTo(position.latlng);
-            total_time_s += (position.timestamp - locations[locations.length - smoothing_overcount - 1].timestamp) * 0.001;
-            let total_speed = (total_distance_m / total_time_s) * 2.23694;
-            let a_5k_time = 5000 * (total_time_s / total_distance_m) / 60;
-            $("#total").text(`${(total_distance_m * 0.000621371 / smoothing_overcount).toFixed(2)} miles @ ${total_speed.toFixed(1)} mph. 5k in ${a_5k_time.toFixed(1)} min`);
-        }
+        let smoothing_start = Math.max(0, locations.length - smoothing_overcount - 1);
+        total_distance_m += locations[smoothing_start].latlng.distanceTo(position.latlng);
+        total_time_s += (position.timestamp - locations[smoothing_start].timestamp) * 0.001;
+
+        let total_speed = (total_distance_m / total_time_s) * 2.23694;
+        let a_5k_time = 5000 * (total_time_s / total_distance_m) / 60;
 
         let mph = speed(locations[old_index], position) * 2.23694;
         let target_mph = +$("#target_speed").val();
         $("#speed").text(`${mph.toFixed(1)} mph.`).toggleClass('too-slow', mph < target_mph - 0.15).toggleClass('too-fast', mph > target_mph + 0.15);
+        $("#total").text(`${(total_distance_m * 0.000621371 / smoothing_overcount).toFixed(2)} miles @ ${total_speed.toFixed(1)} mph. 5k in ${a_5k_time.toFixed(1)} min`);
         $("#info").text(`With ${locations.length - old_index}/${locations.length} test points. Raw speed report ${(position.speed * 2.23694).toFixed(1)}`);
     }
 }
