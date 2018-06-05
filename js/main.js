@@ -2,30 +2,11 @@ function geoOnError(error) {
     $("#error").text('Error occurred. Error message: ' + error.message);
 }
 
-function calculateDistance(lat1, lon1, lat2, lon2) {
-    var R = 3958.756 // Mile = 6371 km
-    var dLat = (lat2 - lat1).toRad();
-    var dLon = (lon2 - lon1).toRad();
-    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    var d = R * c;
-    return d;
-}
-
-Number.prototype.toRad = function () {
-    return this * Math.PI / 180;
-}
-
 function speed(old_pos, new_pos) {
-    let dist = calculateDistance(
-        old_pos.latitude, old_pos.longitude,
-        new_pos.latitude, new_pos.longitude);
+    let dist = old_pos.latlng.distanceTo(new_pos.latlng);
     let time_ms = new_pos.timestamp - old_pos.timestamp;
-    let time_h = time_ms * 2.77778e-7;
-    let mph = dist / time_h;
-    return mph
+    let time_s = time_ms * 0.001;
+    return dist / time_s
 }
 
 var locations = [];
@@ -81,7 +62,7 @@ $(function () {
         }
         locations.push(position);
         if (locations.length >= 2) {
-            let mph = speed(locations[old_index], position);
+            let mph = speed(locations[old_index], position) * 2.23694;
             let target_mph = +$(target_speed).val();
             $("#speed").text(mph.toFixed(1) + " mph.").toggleClass('too-slow', mph < target_mph - 0.15).toggleClass('too-fast', mph > target_mph + 0.15);
             $("#info").text("With " + (locations.length - old_index) + "/" + locations.length + " test points. Raw speed report " + (position.speed * 2.23694).toFixed(1));
