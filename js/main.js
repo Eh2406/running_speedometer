@@ -29,7 +29,6 @@ function speed(old_pos, new_pos) {
 }
 
 var locations = [];
-var start_time;
 var old_index = 0;
 
 $(function () {
@@ -69,11 +68,9 @@ $(function () {
     map.locate({ watch: true, setView: true, maxZoom: 16, enableHighAccuracy: true });
 
     map.on('locationfound', function (position) {
+        $("#error").text('');
         if (position.accuracy > 100) { return; }
         position.circle = L.circle(position.latlng, position.accuracy).addTo(map);
-        if (!start_time) {
-            start_time = position.timestamp;
-        }
         while (locations[old_index + 1] && locations[old_index + 1].timestamp < (position.timestamp - 15 * 1000)) {
             old_index += 1;
         }
@@ -81,7 +78,7 @@ $(function () {
         if (locations.length >= 2) {
             let mph = speed(locations[old_index], position);
             let target_mph = +$(target_speed).val();
-            $("#speed").text(mph.toFixed(1) + " mph.").toggleClass('.too-slow', mph < target_mph - 0.15).toggleClass('.too-fast', mph > target_mph + 0.15);
+            $("#speed").text(mph.toFixed(1) + " mph.").toggleClass('too-slow', mph < target_mph - 0.15).toggleClass('too-fast', mph > target_mph + 0.15);
             $("#info").text("With " + (locations.length - old_index) + "/" + locations.length + " test points. Raw speed report " + (position.speed * 2.23694).toFixed(1));
         }
     });
