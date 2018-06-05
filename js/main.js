@@ -11,6 +11,7 @@ function speed(old_pos, new_pos) {
 
 var locations = [];
 var old_index = 0;
+var total_distance_m = 0;
 
 $(function () {
     // check for Geolocation support
@@ -53,7 +54,6 @@ $(function () {
 
     map.on('locationfound', function (position) {
         $("#error").text('');
-        if (position.accuracy > 100) { return; }
         position.circle = L.circle(position.latlng, position.accuracy).addTo(map);
         polyline.addLatLng(position.latlng);
         while (locations[old_index + 1] && locations[old_index + 1].timestamp < (position.timestamp - 15 * 1000)) {
@@ -62,9 +62,16 @@ $(function () {
         }
         locations.push(position);
         if (locations.length >= 2) {
+            total_distance_m += locations[locations.length - 2].latlng.distanceTo(position.latlng)
+            let time_s = (position.timestamp - locations[0].timestamp) * 0.001;
+            let total_speed = (total_distance_m / time_s) * 2.23694;
+
+            let a_5k_time = 5000 * (time_s / total_distance_m) / 60;
+
             let mph = speed(locations[old_index], position) * 2.23694;
             let target_mph = +$(target_speed).val();
             $("#speed").text(mph.toFixed(1) + " mph.").toggleClass('too-slow', mph < target_mph - 0.15).toggleClass('too-fast', mph > target_mph + 0.15);
+            $("#total").text((total_distance_m * 0.000621371).toFixed(2) + " miles @ " + total_speed.toFixed(1) + " mph. 5k in " + a_5k_time.toFixed(1) + " min");
             $("#info").text("With " + (locations.length - old_index) + "/" + locations.length + " test points. Raw speed report " + (position.speed * 2.23694).toFixed(1));
         }
     });

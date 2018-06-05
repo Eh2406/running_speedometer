@@ -57,7 +57,7 @@ textarea {
    ========================================================================== */
 
 #map {
-    height: 50vh;
+    height: 40vh;
 }
 
 
@@ -85,6 +85,11 @@ textarea {
     background-color: rgba(255, 10, 10, 0.5);
 }
 
+#total {
+    text-align: center;
+    font-weight: bold;
+    font-size: x-large;
+}
 
 /* ==========================================================================
    Media Queries
