@@ -25,6 +25,12 @@ function geoOnFound(position) {
         total_distance_m += locations[smoothing_start].latlng.distanceTo(position.latlng);
         total_time_s += (position.timestamp - locations[smoothing_start].timestamp) * 0.001;
 
+        let bump_on_m = +$("#bump_on").val() / 0.000621371;
+        if (total_distance_m > last_bump_m + bump_on_m) {
+            $("#target_speed").val(+$("#target_speed").val() + +$("#bump_up").val())
+            total_distance_m = last_bump_m + bump_on_m;
+        }
+
         let total_speed = (total_distance_m / total_time_s) * 2.23694;
         let a_5k_time = 5000 * (total_time_s / total_distance_m) / 60;
 
@@ -56,6 +62,7 @@ function reset() {
     locations.forEach((i) => map.removeLayer(i.circle));
     total_distance_m = 0;
     total_time_s = 0;
+    last_bump_m = 0;
     locations = []
     old_index = 0
     map.removeLayer(polyline)
@@ -76,6 +83,7 @@ var old_index = 0;
 const smoothing_overcount = 50;
 var total_distance_m = 0;
 var total_time_s = 0;
+var last_bump_m = 0;
 
 $(function () {
     // check for Geolocation support
