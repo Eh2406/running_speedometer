@@ -34,6 +34,9 @@ function geoOnFound(position) {
         let total_speed = (total_distance_m / total_time_s) * 2.23694;
         let a_5k_time = 5000 * (total_time_s / total_distance_m) / 60;
 
+        chart_data.series[0].push({ x: total_distance_m / smoothing_overcount, y: (position.timestamp - locations[0].timestamp) * 0.001 / 60 });
+        chart.update(chart_data);
+
         let mph = speed(locations[old_index], position) * 2.23694;
         let target_mph = +$("#target_speed").val();
         $("#speed").text(`${mph.toFixed(1)} mph.`).toggleClass('too-slow', mph < target_mph - 0.15).toggleClass('too-fast', mph > target_mph + 0.15);
@@ -72,10 +75,23 @@ function reset() {
     $("#speed").text('').removeClass('too-slow').removeClass('too-fast');
     $("#total").text('');
     $("#info").text('');
+    chart_data = {
+        series: [[
+            { x: 0, y: 0 }
+        ]]
+    };
+    chart.update(chart_data);
 }
 
 var map;
 var polyline;
+
+var chart;
+var chart_data = {
+    series: [[
+        { x: 0, y: 0 }
+    ]]
+};
 
 var locations = [];
 var old_index = 0;
@@ -108,6 +124,23 @@ $(function () {
             )
         })
     }
+
+    chart = new Chartist.Line('.ct-chart', chart_data, {
+        axisX: {
+            type: Chartist.FixedScaleAxis,
+            low: 0,
+            high: 5000,
+            ticks: [1609, 2 * 1609, 3 * 1609]
+        },
+        axisY: {
+            type: Chartist.AutoScaleAxis,
+            low: 0,
+            high: 40,
+            onlyInteger: true,
+        },
+        lineSmooth: false,
+        showPoint: false,
+    });
 
     $("#start").click(reset)
 
