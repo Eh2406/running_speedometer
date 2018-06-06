@@ -26,9 +26,9 @@ function geoOnFound(position) {
         total_time_s += (position.timestamp - locations[smoothing_start].timestamp) * 0.001;
 
         let bump_on_m = +$("#bump_on").val() / 0.000621371;
-        if (total_distance_m > last_bump_m + bump_on_m) {
-            $("#target_speed").val(+$("#target_speed").val() + +$("#bump_up").val())
-            total_distance_m = last_bump_m + bump_on_m;
+        if ((total_distance_m / smoothing_overcount) > last_bump_m + bump_on_m) {
+            $("#target_speed").val((+$("#target_speed").val() + +$("#bump_up").val()).toFixed(1))
+            last_bump_m += bump_on_m;
         }
 
         let total_speed = (total_distance_m / total_time_s) * 2.23694;
