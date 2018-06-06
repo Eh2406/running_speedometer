@@ -58,11 +58,14 @@ textarea {
 
    
 input[type="number" i] {
-    width: 6ex;
+    width: 5ex;
 }
 
-
 #map {
+    height: 40vh;
+}
+
+#chart {
     height: 40vh;
 }
 
