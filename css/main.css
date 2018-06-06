@@ -62,11 +62,11 @@ input[type="number" i] {
 }
 
 #map {
-    height: 40vh;
+    height: 35vh;
 }
 
 #chart {
-    height: 40vh;
+    height: 35vh;
 }
 
 
@@ -81,7 +81,7 @@ input[type="number" i] {
 #speed {
     text-align: center;
     font-weight: bold;
-    font-size: xx-large;
+    font-size: x-large;
 }
 
 
@@ -97,7 +97,7 @@ input[type="number" i] {
 #total {
     text-align: center;
     font-weight: bold;
-    font-size: x-large;
+    font-size: large;
 }
 
 /* ==========================================================================
