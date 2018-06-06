@@ -31,7 +31,10 @@ function geoOnFound(position) {
         let mph = speed(locations[old_index], position) * 2.23694;
         let target_mph = +$("#target_speed").val();
         $("#speed").text(`${mph.toFixed(1)} mph.`).toggleClass('too-slow', mph < target_mph - 0.15).toggleClass('too-fast', mph > target_mph + 0.15);
-        $("#total").text(`${(total_distance_m * 0.000621371 / smoothing_overcount).toFixed(2)} miles @ ${total_speed.toFixed(1)} mph. 5k in ${a_5k_time.toFixed(1)} min`);
+        $("#total").text(
+            `${(total_distance_m * 0.000621371 / smoothing_overcount).toFixed(2)} miles in ${((position.timestamp - locations[0].timestamp) * 0.001 / 60).toFixed(1)} min is ${total_speed.toFixed(1)} mph.
+            5k in ${a_5k_time.toFixed(1)} min.`
+        );
         $("#info").text(`With ${locations.length - old_index}/${locations.length} test points. Raw speed report ${(position.speed * 2.23694).toFixed(1)}`);
     }
 }
